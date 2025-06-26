@@ -46,7 +46,9 @@ def list_note_titles():
 
 def select_note(titles):
     while True:
+        print("\n" + "=" * 80)
         choice = input("Enter the number of the note to view (or press Enter to cancel): ").strip()
+        print("=" * 80 + "\n")
         if choice == "":
             print("Cancelled.")
             return None
@@ -127,6 +129,33 @@ def edit_note():
     choose_edit_method(full_path, title)
 
 
+def delete_note():
+    titles = list_note_titles()
+    selected_file = select_note(titles)
+
+    if not selected_file:
+        return  # user cancelled
+    
+    print(f"Are you sure you want to delete '{selected_file[:-4]}'? (Y/N)")
+    confirm = input().strip().lower()
+    
+    if confirm == "y":
+        full_path = os.path.join(notes_path, selected_file)
+        os.remove(full_path)
+        print("\n" + "=" * 30)
+        print(f"Note '{selected_file[:-4]}' has been deleted.")
+        print("=" * 30 + "\n")
+    elif confirm == "n":
+        print("\n" + "=" * 30)
+        print("Aborting delete.")
+        print("=" * 30 + "\n")
+        return
+    else:
+        print("\n" + "=" * 30)
+        print("Invalid input. Aborting delete.")
+        print("=" * 30 + "\n")
+
+
 def main():
     username = "user1"
     
@@ -162,7 +191,7 @@ def main():
             print("\n" + "=" * 30)
             print("       DELETING NOTE")
             print("=" * 30 + "\n")
-            print("Deleting a note... (not yet implemented)")
+            delete_note()
 
         elif choice == "5":
             print("\nThanks for using KeepNotes. Goodbye!\n")
