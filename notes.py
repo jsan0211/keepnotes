@@ -19,11 +19,29 @@ def check_path():
 notes_path = check_path()
 
 
+def choose_edit_method(full_path, title):
+    print("\nHow would you like to edit this note?")
+    print("1. Edit in terminal (line-by-line)")
+    print("2. Open in external editor (Notepad/Nano)")
+    edit_method = input("Choose 1 or 2: ").strip()
+
+    if edit_method == "1":
+        # inline editing logic
+        ...
+    elif edit_method == "2":
+        os.system(f'notepad "{full_path}"')  # or nano
+    else:
+        print("Invalid choice. Returning to menu.")
+
+
+
 def list_note_titles():
-    titles = sorted(os.listdir(notes_path))
-    for index, file in enumerate(titles, start=1):
+    all_files = os.listdir(notes_path)
+    txt_files = sorted([f for f in all_files if f.endswith(".txt")])
+    for index, file in enumerate(txt_files, start=1):
         print(f"{index}. {file[:-4]}")  # removes ".txt"
-    return titles
+    return txt_files
+
 
 
 def select_note(titles):
@@ -61,22 +79,7 @@ def view_notes():
             print("=" * 30)
 
 
-def add_note():
-    while True:
-        title = input("Enter a title (or type 'return' to cancel): ").strip()
-        if title.lower() == "return":
-            print("Returning to main menu...")
-            return
-
-        file_name = title.replace(" ", "_").lower() + ".txt"
-        full_path = os.path.join(notes_path, file_name)
-
-        if os.path.exists(full_path):
-            print(f"A note titled '{title}' already exists.")
-            print("Please enter another title.")
-        else:
-            break  # title is unique, proceed to content
-
+def write_note_content(full_path, title):
     print("Enter your content. Type 'DONE' on a new line to finish.")
     lines = []
     while True:
@@ -90,6 +93,38 @@ def add_note():
         file.write(content)
 
     print(f"Note '{title}' saved successfully!")
+
+
+
+def add_note():
+    title = input("Enter a title: ").strip()
+    file_name = title.replace(" ", "_").lower() + ".txt"
+    full_path = os.path.join(notes_path, file_name)
+
+    if os.path.exists(full_path):
+        print(f"A note titled '{title}' already exists.")
+        return
+
+    write_note_content(full_path, title)
+
+
+
+def edit_note():
+    if not os.listdir(notes_path):
+        print("No notes to edit.")
+        return
+
+    print("Available Notes:")
+    titles = list_note_titles()
+    selected_file = select_note(titles)
+
+    if not selected_file:
+        return
+
+    title = selected_file[:-4]
+    full_path = os.path.join(notes_path, selected_file)
+
+    choose_edit_method(full_path, title)
 
 
 def main():
@@ -121,7 +156,7 @@ def main():
             print("\n" + "=" * 30)
             print("       EDITING NOTE")
             print("=" * 30 + "\n")
-            print("Editing a note... (not yet implemented)")
+            edit_note()
 
         elif choice == "4":
             print("\n" + "=" * 30)
@@ -135,17 +170,6 @@ def main():
 
         else:
             print("\nInvalid option. Please choose 1 through 5.\n")
-
-
-
-
-    # Add()
-
-
-    # Edit()
-
-
-    # Delete()
 
 
 if __name__ == "__main__":
