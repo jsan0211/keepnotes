@@ -1,9 +1,12 @@
 # built out menu
 # view_notes() works
-# adding a check path to notes directory to be reusable
+# adding a check path to notes directory to be reusable (review logic)
+# set up add_note()
+# setup overwrite protection( check for existing filename)
 
 
 import os
+
 
 def check_path():
     notes_path = os.path.join(os.getcwd(), "notes")  # relative path
@@ -16,16 +19,78 @@ def check_path():
 notes_path = check_path()
 
 
+def list_note_titles():
+    titles = sorted(os.listdir(notes_path))
+    for index, file in enumerate(titles, start=1):
+        print(f"{index}. {file[:-4]}")  # removes ".txt"
+    return titles
+
+
+def select_note(titles):
+    while True:
+        choice = input("Enter the number of the note to view (or press Enter to cancel): ").strip()
+        if choice == "":
+            print("Cancelled.")
+            return None
+
+        if choice.isdigit():
+            index = int(choice)
+            if 1 <= index <= len(titles):
+                return titles[index - 1]
+            else:
+                print("Invalid number. Try again.")
+        else:
+            print("Please enter a number.")
+
+
 def view_notes():
     if not os.listdir(notes_path):
         print("No notes found.")
         return
-    
-    for filename in sorted(os.listdir(notes_path)):
-        file_path = os.path.join(notes_path, filename)
-        with open(file_path, "r") as file:
-            content = file.read().strip()
-            print(f"{filename[:-4]}: {content}")
+
+    print("Saved Notes:")
+    titles = list_note_titles()
+    selected_file = select_note(titles)
+
+    if selected_file:
+        full_path = os.path.join(notes_path, selected_file)
+        with open(full_path, "r") as file:
+            print("\n" + "=" * 30)
+            print(f"--- {selected_file[:-4]} ---")
+            print(file.read())
+            print("=" * 30)
+
+
+def add_note():
+    while True:
+        title = input("Enter a title (or type 'return' to cancel): ").strip()
+        if title.lower() == "return":
+            print("Returning to main menu...")
+            return
+
+        file_name = title.replace(" ", "_").lower() + ".txt"
+        full_path = os.path.join(notes_path, file_name)
+
+        if os.path.exists(full_path):
+            print(f"A note titled '{title}' already exists.")
+            print("Please enter another title.")
+        else:
+            break  # title is unique, proceed to content
+
+    print("Enter your content. Type 'DONE' on a new line to finish.")
+    lines = []
+    while True:
+        line = input()
+        if line.strip().upper() == "DONE":
+            break
+        lines.append(line)
+
+    content = "\n".join(lines)
+    with open(full_path, "w") as file:
+        file.write(content)
+
+    print(f"Note '{title}' saved successfully!")
+
 
 def main():
     username = "user1"
@@ -50,7 +115,7 @@ def main():
             print("\n" + "=" * 30)
             print("       ADDING NOTE")
             print("=" * 30 + "\n")
-            print("Adding a note... (not yet implemented)")
+            add_note()
 
         elif choice == "3":
             print("\n" + "=" * 30)
